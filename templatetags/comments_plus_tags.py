@@ -39,7 +39,6 @@ class RenderCommentStageNode(CommentFormNode):
 
     def render(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
-	print self.object_expr.resolve(context)
         if object_pk:
             template_search_list = [
                 "comments/%s/%s/stage.html" % (ctype.app_label, ctype.model),
