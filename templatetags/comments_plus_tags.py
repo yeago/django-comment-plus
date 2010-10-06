@@ -17,6 +17,9 @@ register.tag(get_karma_comment_list)
 
 class RenderCommentStageNode(CommentFormNode):
     """Render the comment strage directly"""
+    def __init__(self, qs=None, *args, **kwargs):
+	self._qs = qs
+	super(RenderCommentStageNode,self).__init__(*args,**kwargs)
 
     #@classmethod
     def handle_token(cls, parser, token):
@@ -26,8 +29,12 @@ class RenderCommentStageNode(CommentFormNode):
             raise template.TemplateSyntaxError("Second argument in %r tag must be 'for'" % tokens[0])
 
         # {% render_comment_form for obj %}
-        if len(tokens) == 3:
-            return cls(object_expr=parser.compile_filter(tokens[2]))
+        if len(tokens) == 3 or (len(tokens) == 5 and tokens[3] == 'with'):
+            qs = None
+	    if len(tokens) == 5:
+                qs = parser.compile_filter(tokens[4])
+
+            return cls(object_expr=parser.compile_filter(tokens[2]),qs=qs)
 
         # {% render_comment_form for app.models pk %}
         elif len(tokens) == 4:
@@ -35,6 +42,7 @@ class RenderCommentStageNode(CommentFormNode):
                 ctype = BaseCommentNode.lookup_content_type(tokens[2], tokens[0]),
                 object_pk_expr = parser.compile_filter(tokens[3])
             )
+
     handle_token = classmethod(handle_token)
 
     def render(self, context):
@@ -46,7 +54,10 @@ class RenderCommentStageNode(CommentFormNode):
                 "comments/stage.html"
             ]
             context.push()
-            stagestr = render_to_string(template_search_list, {"object" : self.object_expr.resolve(context)}, context)
+	    if self._qs:
+                self._qs = self._qs.resolve(context)
+            stagestr = render_to_string(template_search_list, \
+                {"object" : self.object_expr.resolve(context), 'comment_list': self._qs}, context)
             context.pop()
             return stagestr
         else:
