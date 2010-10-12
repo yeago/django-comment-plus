@@ -45,17 +45,21 @@ class RenderCommentStageNode(CommentFormNode):
 
     handle_token = classmethod(handle_token)
 
-    def render(self, context):
+    def render(self, context, template_search_list=None):
         ctype, object_pk = self.get_target_ctype_pk(context)
         if object_pk:
-            template_search_list = [
+            defaults = [
                 "comments/%s/%s/stage.html" % (ctype.app_label, ctype.model),
                 "comments/%s/stage.html" % ctype.app_label,
                 "comments/stage.html"
             ]
+	    template_search_list = template_search_list or defaults
             context.push()
+	    from django.db.models.query import QuerySet
 	    if self._qs:
-                self._qs = self._qs.resolve(context)
+                given_qs = self._qs.resolve(context)
+		if isinstance(given_qs,QuerySet):
+		    self._qs = given_qs
             stagestr = render_to_string(template_search_list, \
                 {"object" : self.object_expr.resolve(context), 'comment_list': self._qs}, context)
             context.pop()
