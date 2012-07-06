@@ -19,8 +19,7 @@ class RemoveCommentNode(template.Node):
         if hasattr(object,'comment_remove_by'):
             if object.comment_remove_by(user):
                 context[var] = True
-
-    return ''
+        return ''
 
 def set_comment_remove_variable(parser, token):
     args = token.split_contents()
