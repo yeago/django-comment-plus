@@ -78,18 +78,17 @@ class RenderCommentStageNode(CommentFormNode):
                 "comments/%s/stage.html" % ctype.app_label,
                 "comments/stage.html"
             ]
-        template_search_list = template_search_list or defaults
+            template_search_list = template_search_list or defaults
             context.push()
-        if self._qs:
+            if self._qs:
                 given_qs = self._qs.resolve(context)
-        if isinstance(given_qs,QuerySet):
-            self._qs = given_qs
+                if isinstance(given_qs,QuerySet):
+                    self._qs = given_qs
             stagestr = render_to_string(template_search_list, \
                 {"request": context.get("request"), "object" : self.object_expr.resolve(context), 'comment_list': self._qs}, context)
             context.pop()
             return stagestr
-        else:
-            return ''
+        return ''
 
 def render_comment_stage(parser, token):
     return RenderCommentStageNode.handle_token(parser, token)
