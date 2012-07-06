@@ -44,8 +44,8 @@ register.tag(get_karma_comment_list)
 class RenderCommentStageNode(CommentFormNode):
     """Render the comment strage directly"""
     def __init__(self, qs=None, *args, **kwargs):
-    self._qs = qs
-    super(RenderCommentStageNode,self).__init__(*args,**kwargs)
+        self._qs = qs
+        super(RenderCommentStageNode,self).__init__(*args,**kwargs)
 
     #@classmethod
     def handle_token(cls, parser, token):
