@@ -8,14 +8,14 @@ register = template.Library()
 
 class RemoveCommentNode(template.Node):
     def __init__(self,user,object, var_name):
-    self.user = template.Variable(user)
-    self.object = template.Variable(object)
-    self.var_name = var_name
+        self.user = template.Variable(user)
+        self.object = template.Variable(object)
+        self.var_name = var_name
 
     def render(self, context):
-    object = self.object.resolve(context)
-    user = self.user.resolve(context)
-    var = self.var_name
+        object = self.object.resolve(context)
+        user = self.user.resolve(context)
+        var = self.var_name
         if hasattr(object,'comment_remove_by'):
             if object.comment_remove_by(user):
                 context[var] = True
