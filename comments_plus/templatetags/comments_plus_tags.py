@@ -57,9 +57,8 @@ class RenderCommentStageNode(CommentFormNode):
         # {% render_comment_form for obj %}
         if len(tokens) == 3 or (len(tokens) == 5 and tokens[3] == 'with'):
             qs = None
-        if len(tokens) == 5:
+            if len(tokens) == 5:
                 qs = parser.compile_filter(tokens[4])
-
             return cls(object_expr=parser.compile_filter(tokens[2]),qs=qs)
 
         # {% render_comment_form for app.models pk %}
