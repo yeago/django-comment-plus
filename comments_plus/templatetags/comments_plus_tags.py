@@ -81,14 +81,14 @@ class RenderCommentStageNode(CommentFormNode):
             context.push()
             if self._qs:
                 given_qs = self._qs.resolve(context)
-            stagestr = render_to_string(
-                template_search_list,
-                {
-                    "request": context.get("request"),
-                    "object": self.object_expr.resolve(context),
-                    'comment_list': given_qs}, context)
-            context.pop()
-            return stagestr
+                stagestr = render_to_string(
+                    template_search_list,
+                    {
+                        "request": context.get("request"),
+                        "object": self.object_expr.resolve(context),
+                        'comment_list': given_qs}, context)
+                context.pop()
+                return stagestr
         return ''
 
 
