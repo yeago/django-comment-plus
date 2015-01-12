@@ -58,13 +58,13 @@ class RenderCommentStageNode(CommentFormNode):
             qs = None
             if len(tokens) == 5:
                 qs = parser.compile_filter(tokens[4])
-            return cls(object_expr=parser.compile_filter(tokens[2]),qs=qs)
+            return cls(object_expr=parser.compile_filter(tokens[2]), qs=qs)
 
         # {% render_comment_form for app.models pk %}
         elif len(tokens) == 4:
             return cls(
-                ctype = BaseCommentNode.lookup_content_type(tokens[2], tokens[0]),
-                object_pk_expr = parser.compile_filter(tokens[3])
+                ctype=BaseCommentNode.lookup_content_type(tokens[2], tokens[0]),
+                object_pk_expr=parser.compile_filter(tokens[3])
             )
 
     handle_token = classmethod(handle_token)
@@ -81,13 +81,16 @@ class RenderCommentStageNode(CommentFormNode):
             context.push()
             if self._qs:
                 given_qs = self._qs.resolve(context)
-                if isinstance(given_qs,QuerySet):
-                    self._qs = given_qs
-            stagestr = render_to_string(template_search_list, \
-                {"request": context.get("request"), "object" : self.object_expr.resolve(context), 'comment_list': self._qs}, context)
+            stagestr = render_to_string(
+                template_search_list,
+                {
+                    "request": context.get("request"),
+                    "object": self.object_expr.resolve(context),
+                    'comment_list': given_qs}, context)
             context.pop()
             return stagestr
         return ''
+
 
 def render_comment_stage(parser, token):
     return RenderCommentStageNode.handle_token(parser, token)
