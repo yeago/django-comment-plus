@@ -6,8 +6,9 @@ from django.contrib.comments.templatetags.comments import BaseCommentNode, Comme
 
 register = template.Library()
 
+
 class RemoveCommentNode(template.Node):
-    def __init__(self,user,object, var_name):
+    def __init__(self, user, object, var_name):
         self.user = template.Variable(user)
         self.object = template.Variable(object)
         self.var_name = var_name
@@ -16,37 +17,41 @@ class RemoveCommentNode(template.Node):
         object = self.object.resolve(context)
         user = self.user.resolve(context)
         var = self.var_name
-        if hasattr(object,'comment_remove_by'):
+        if hasattr(object, 'comment_remove_by'):
             if object.comment_remove_by(user):
                 context[var] = True
         return ''
 
+
 def set_comment_remove_variable(parser, token):
     args = token.split_contents()
-    if not len(args) in [4,6]:
+    if not len(args) in [4, 6]:
         raise template.TemplateSyntaxError("Not the right amount of args")
 
-    return RemoveCommentNode(args[2],args[3],args[5])
+    return RemoveCommentNode(args[2], args[3], args[5])
 
 register.tag(set_comment_remove_variable)
+
 
 class KarmaCommentListNode(BaseCommentNode):
     """Insert a list of comments into the context."""
     def get_context_value_from_queryset(self, context, qs):
         return list(qs.annotate(Count('karma')))
 
+
 def get_karma_comment_list(parser, token):
     return KarmaCommentListNode.handle_token(parser, token)
 
 register.tag(get_karma_comment_list)
 
+
 class RenderCommentStageNode(CommentFormNode):
     """Render the comment strage directly"""
     def __init__(self, qs=None, *args, **kwargs):
-        self._qs = qs
-        super(RenderCommentStageNode,self).__init__(*args,**kwargs)
+        self.explicit_varname = qs
+        super(RenderCommentStageNode, self).__init__(*args, **kwargs)
 
-    #@classmethod
+    @classmethod
     def handle_token(cls, parser, token):
         """Class method to parse render_comment_stage and return a Node."""
         tokens = token.contents.split()
@@ -67,8 +72,6 @@ class RenderCommentStageNode(CommentFormNode):
                 object_pk_expr=parser.compile_filter(tokens[3])
             )
 
-    handle_token = classmethod(handle_token)
-
     def render(self, context, template_search_list=None):
         ctype, object_pk = self.get_target_ctype_pk(context)
         if object_pk:
@@ -79,16 +82,21 @@ class RenderCommentStageNode(CommentFormNode):
             ]
             template_search_list = template_search_list or defaults
             context.push()
-            if self._qs:
-                given_qs = self._qs.resolve(context)
-                stagestr = render_to_string(
-                    template_search_list,
-                    {
-                        "request": context.get("request"),
-                        "object": self.object_expr.resolve(context),
-                        'comment_list': given_qs}, context)
-                context.pop()
-                return stagestr
+
+            render_context = {
+                "request": context.get("request"),
+                "object": self.object_expr.resolve(context),
+            }
+
+            if self.explicit_varname:
+                render_context['comment_list'] = self.explicit_varname.resolve(context)
+
+            stagestr = render_to_string(
+                template_search_list,
+                render_context,
+                context)
+            context.pop()
+            return stagestr
         return ''
 
 
