@@ -49,7 +49,7 @@ register.tag(get_karma_comment_list)
 
 
 @register.simple_tag(takes_context=True)
-def render_comment_stage(context, instance, since=None, until=None, templates=None, comments=None):
+def render_comment_stage(context, instance, since=None, until=None, templates=None, comments=None, hide_form=False):
     ctype = ContentType.objects.get_for_model(instance)
     templates = templates or [
         "comments/%s/%s/stage.html" % (ctype.app_label, ctype.model),
@@ -66,6 +66,7 @@ def render_comment_stage(context, instance, since=None, until=None, templates=No
         "request": context.get("request"),
         "object": instance,
         'comment_list': comment_list,
+        'hide_form': hide_form,
     }
 
     stagestr = render_to_string(
