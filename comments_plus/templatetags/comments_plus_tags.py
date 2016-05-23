@@ -58,7 +58,7 @@ def render_comment_stage(context, instance, since=None, until=None, templates=No
     ]
     comment_list = comments or Comment.objects.for_model(instance)
     if since:
-        comment_list = comment_list.filter(submit_date__gte=since)
+        comment_list = comment_list.filter(submit_date__gt=since)
     if until:
         comment_list = comment_list.filter(submit_date__lt=until)
 
