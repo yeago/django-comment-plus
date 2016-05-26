@@ -56,16 +56,17 @@ def render_comment_stage(context, instance, since=None, until=None, templates=No
         "comments/%s/stage.html" % ctype.app_label,
         "comments/stage.html"
     ]
-    comment_list = comments or Comment.objects.for_model(instance)
+    if comments is None:
+        comments = Comment.objects.for_model(instance)
     if since:
-        comment_list = comment_list.filter(submit_date__gte=since)
+        comments = comments.filter(submit_date__gte=since)
     if until:
-        comment_list = comment_list.filter(submit_date__lt=until)
+        comments = comments.filter(submit_date__lt=until)
 
     render_context = {
         "request": context.get("request"),
         "object": instance,
-        'comment_list': comment_list,
+        'comment_list': comments,
         'hide_form': hide_form,
     }
 
