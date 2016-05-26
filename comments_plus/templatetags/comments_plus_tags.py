@@ -49,9 +49,9 @@ register.tag(get_karma_comment_list)
 
 
 @register.simple_tag(takes_context=True)
-def render_comment_stage(context, instance, since=None, until=None, templates=None, comments=None, hide_form=False):
+def render_comment_stage(context, instance, since=None, until=None, template=None, comments=None, hide_form=False):
     ctype = ContentType.objects.get_for_model(instance)
-    templates = templates or [
+    templates = [template] if template else [
         "comments/%s/%s/stage.html" % (ctype.app_label, ctype.model),
         "comments/%s/stage.html" % ctype.app_label,
         "comments/stage.html"
@@ -59,7 +59,7 @@ def render_comment_stage(context, instance, since=None, until=None, templates=No
     if comments is None:
         comments = Comment.objects.for_model(instance)
     if since:
-        comments = comments.filter(submit_date__gte=since)
+        comments = comments.filter(submit_date__gt=since)
     if until:
         comments = comments.filter(submit_date__lt=until)
 
