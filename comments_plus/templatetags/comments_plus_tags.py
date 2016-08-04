@@ -36,18 +36,6 @@ def set_comment_remove_variable(parser, token):
 register.tag(set_comment_remove_variable)
 
 
-class KarmaCommentListNode(BaseCommentNode):
-    """Insert a list of comments into the context."""
-    def get_context_value_from_queryset(self, context, qs):
-        return list(qs.annotate(Count('karma')))
-
-
-def get_karma_comment_list(parser, token):
-    return KarmaCommentListNode.handle_token(parser, token)
-
-register.tag(get_karma_comment_list)
-
-
 @register.simple_tag(takes_context=True)
 def render_comment_stage(context, instance, since=None, until=None, template=None, comments=None, hide_form=False):
     ctype = ContentType.objects.get_for_model(instance)
