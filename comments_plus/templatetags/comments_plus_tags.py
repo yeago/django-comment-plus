@@ -51,8 +51,10 @@ def render_comment_stage(context, instance, since=None, until=None, template=Non
     if until:
         comments = comments.filter(submit_date__lt=until)
 
+    request = context.get('request')
+
     render_context = {
-        "request": context.get("request"),
+        "request": request,
         "object": instance,
         'comment_list': comments,
         'hide_form': hide_form,
@@ -61,6 +63,6 @@ def render_comment_stage(context, instance, since=None, until=None, template=Non
     stagestr = render_to_string(
         templates,
         render_context,
-        context)
+        request=request)
     context.pop()
     return stagestr
